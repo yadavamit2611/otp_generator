@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body
+    {
+      zoom: 150%;
+    }
+    .button {
+      background-color: #4CAF50; /* Green */
+      border: none;
+      color: white;
+      padding: 5px 22px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      border-radius: 4px;
+    }
+    .button {
+      transition-duration: 0.4s;
+    }
+
+    .button:hover {
+      background-color: black; /* Green */
+      color: white;
+    }
+    .success {background-color: #4CAF50;} /* Green */
+    .primary {background-color: #008CBA;} /* Blue */
+  </style>
+
+</head>
+<body>
+<h2>OTP Generation</h2>
+<p>Enter Name</p>
+<input type='text' maxLength='8' onfocus="uncheckAll()" onblur="checkRadio()" style='width:100px;' id='sys' />
+<p>Select DD/MM/YYYY</p> DD
+<input type='text' maxLength='2' style='width:30px;' id='dd' />/MM
+<input type='text' maxLength='2' style='width:30px;' id='mm' />/YYYY
+<input type='text' maxLength='4' style='width:50px;' id='yyyy' />
+<p>No. of Days</p>
+<input type='text' maxLength='2' style='width:100px;' id='noOfDays'/>
+<p>
+  <input type='button' class="button success" onClick='GenerateOTP()' value='Generate' />
+</p>
+<div id="displayOTP">
+</div></br></br>
+<!--    <label>Customer OTP=<span id="customerOTP"> </span></label></br></br>-->
+<button class="button primary" onclick="copyToClipboard('displayOTP');return false;">Copy to Clipboard</button>
+<script>
+  var superAdminOTP = '';
+  var customer = '';
+  var noOfDays = 1;
+  var daysInMonth = 0;
+  //user-defined function to open and share web content on WhatsApp
+  function openWhatsApp() {
+    window.open('whatsapp://send?text= ' + superAdminOTP+'');
+  }
+  function copyToClipboard(id) {
+    var r = document.createRange();
+    r.selectNode(document.getElementById(id));
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(r);
+    document.execCommand('copy');
+    window.getSelection().removeAllRanges();
+    alert("OTP Copied");
+  }
+  function setCurrentDate() {
+    var dt = new Date();
+    var dd = dt.getDate() + '';
+    var mm = (dt.getMonth() + 1) + '';
+    var yyyy = dt.getFullYear() + '';
+    if (mm.length < 2) mm = '0' + mm;
+    if (dd.length < 2) dd = '0' + dd;
+    document.getElementById("dd").value = dd;
+    document.getElementById("mm").value = mm;
+    document.getElementById("yyyy").value = yyyy;
+    document.getElementById("noOfDays").value = noOfDays;
+    GenerateOTP();
+  }
+  function GenerateOTP() {
+    noOfDays = document.getElementById("noOfDays").value;
+    console.log(noOfDays);
+    var otpDate = '';
+//            var incDate = new Date(document.getElementById("yyyy").value + '.' + document.getElementById("mm").value + '.' + document.getElementById("dd").value);
+    var currDate = document.getElementById("dd").value;
+    var year = document.getElementById("yyyy").value;
+    var month = document.getElementById("mm").value;
+    console.log("Days in month",daysInMonth);
+    var content = "<label>OTP for Super Admin : <span id='displaySys'> </span></label></br></br>";
+    for(var i=0;i<noOfDays;i++)
+    {
+      currDate = currDate+'';
+      month = month+'';
+      console.log(month.length,currDate.length);
+      if (month.length < 2) month = '0' + month;
+      if (currDate.length < 2) currDate = '0' + currDate;
+      daysInMonth = getDaysInMonth(year,month);
+      otpDate = currDate+"/"+""+month+"/"+year;
+      superAdminOTP = myFunction(document.getElementById("sys").value.toUpperCase(), currDate, month, year);
+      content += '<label>'+otpDate+' : <span id="demo'+i+'">'+superAdminOTP+'</span></label></br>';
+      if(currDate < daysInMonth)
+      {
+        currDate++;
+      }
+      else
+      {
+        if(month < 12)
+        {
+          month++;
+        }
+        else
+        {
+          year++;
+          month=1;
+        }
+        currDate=1;
+      }
+    }
+    document.getElementById("displayOTP").innerHTML = content;
+    document.getElementById("displaySys").innerHTML = document.getElementById("sys").value;
+//            customer = myFunction(superAdminOTP, document.getElementById("dd").value, document.getElementById("mm").value, document.getElementById("yyyy").value);
+//            document.getElementById("customerOTP").innerHTML = customer;
+  }
+  function getDaysInMonth(year,month)
+  {
+    return new Date(year, month, 0).getDate();
+  }
+  function myFunction(sys, dd, mm, yyyy) {
+    if (mm.length < 2) mm = '0' + mm;
+    if (dd.length < 2) dd = '0' + dd;
+    var unix = new Date(yyyy + '.' + mm + '.' + dd).getTime() / 1000;
+    var sfl = parseInt(dd) % 8;
+    if (isNaN(unix)) {
+      return 'Invalid Date';
+    }
+    var unixhex = unix.toString(16);
+    var i;
+    var zeroPadded = "";
+    for (i = unixhex.length; i < 8; i++) {
+      zeroPadded = '0' + zeroPadded;
+    }
+    zeroPadded = zeroPadded + unixhex;
+    var code = "";
+    for (i = 0; i < zeroPadded.length; i++) {
+      var ch = zeroPadded.charAt(i);
+      var num = parseInt(ch);
+      if (isNaN(num)) {
+        num = parseInt(ch, 16);
+      }
+      if (i < sys.length) {
+        num = num + (sys.charCodeAt(i) - 65);
+        if (num >= 26) {
+          num = num - 26;
+        }
+        console.log("num ", num);
+      }
+      code = code + String.fromCharCode(65 + num);
+    }
+    var result = code.substring(sfl, 9) + code.substring(0, sfl);
+    return result;
+  }
+  setCurrentDate();
+</script>
+</body>
+
+</html>
