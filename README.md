@@ -1,4 +1,5 @@
 # otp_generator
 OTP Generation for multiple days
 An application that can be used to generate otps for applications.
+with basic javascript and html,css
 
